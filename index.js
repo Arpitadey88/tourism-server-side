@@ -49,13 +49,61 @@ async function run() {
             res.json(result)
         });
 
-        // Get Orders API
-        app.post('/orders', async (req, res) => {
-            const order = req.body;
-            console.log('order', order);
-            res.send('Order processed');
-
+        // Show Orders API In UI By GET
+        app.get('/orders', async (req, res) => {
+            const cursor = orderCollection.find({});
+            const orders = await cursor.toArray();
+            res.send(orders);
         });
+        // Show update 
+        app.get('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const order = await orderCollection.findOne(query);
+            // console.log('load order with id:', id);
+            res.send(order);
+        })
+
+        // Post Orders API In Database By POST
+        app.post('/orders', async (req, res) => {
+            const newOrder = req.body;
+            const result = await orderCollection.insertOne(newOrder);
+            // console.log('got new order', req.body);
+            // console.log('added order', result);
+            res.json(result);
+        });
+
+        // UPDATE order
+        app.put('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const updatedOrder = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    name: updatedOrder.name,
+                    email: updatedOrder.email
+                },
+            };
+            const result = await orderCollection.updateOne(filter, updateDoc, options)
+            console.log('updating order', req);
+            res.json(result);
+        })
+
+        // // get my orders
+        // app.get('/orders/:email', async (req, res) => {
+        //     console.log(req.params.email);
+        // });
+
+        // DELETE API
+        app.delete('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.deleteOne(query);
+            console.log('deleteing user with id', result);
+            res.json(result);
+        });
+
 
     }
     finally {
