@@ -73,7 +73,7 @@ async function run() {
             res.json(result);
         });
 
-        // UPDATE order
+        // UPDATE Order
         app.put('/orders/:id', async (req, res) => {
             const id = req.params.id;
             const updatedOrder = req.body;
