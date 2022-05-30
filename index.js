@@ -30,7 +30,7 @@ async function run() {
             res.send(services);
         })
 
-        // GET SINGLE SERVICE
+        // GET SINGLE SERVICE 
         app.get('/services/:id', async (req, res) => {
             const id = req.params.id;
             console.log('getting specific service', id);
@@ -43,7 +43,6 @@ async function run() {
         app.post('/services', async (req, res) => {
             const service = req.body;
             console.log('hit the post api', service);
-
             const result = await servicesCollection.insertOne(service);
             console.log(result);
             res.json(result)
@@ -55,55 +54,45 @@ async function run() {
             const orders = await cursor.toArray();
             res.send(orders);
         });
-        // Show update 
-        app.get('/orders/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const order = await orderCollection.findOne(query);
-            // console.log('load order with id:', id);
-            res.send(order);
-        })
 
         // Post Orders API In Database By POST
         app.post('/orders', async (req, res) => {
             const newOrder = req.body;
             const result = await orderCollection.insertOne(newOrder);
-            // console.log('got new order', req.body);
-            // console.log('added order', result);
+            console.log('got new order', req.body);
+            console.log('added order', result);
             res.json(result);
         });
 
-        // UPDATE Order
-        app.put('/orders/:id', async (req, res) => {
-            const id = req.params.id;
-            const updatedOrder = req.body;
-            const filter = { _id: ObjectId(id) };
-            const options = { upsert: true };
-            const updateDoc = {
-                $set: {
-                    name: updatedOrder.name,
-                    email: updatedOrder.email
-                },
-            };
-            const result = await orderCollection.updateOne(filter, updateDoc, options)
-            console.log('updating order', req);
-            res.json(result);
+        app.post('/myOrder', async (req, res) => {
+            const email = []
+            const getEmail = req.body.email;
+            email.push(getEmail)
+            console.log(email);
+            const query = { userEmail: { $in: email } }
+            const services = await orderCollection.find(query).toArray();
+            res.json(services)
         })
 
-        // // get my orders
-        // app.get('/orders/:email', async (req, res) => {
-        //     console.log(req.params.email);
-        // });
-
-        // DELETE API
-        app.delete('/orders/:id', async (req, res) => {
+        // Delete API for myOrder and manageOrder
+        app.delete('/myOrder/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const result = await orderCollection.deleteOne(query);
-            console.log('deleteing user with id', result);
-            res.json(result);
-        });
+            const query = { _id: ObjectId(id) }
+            const result = await orderCollection.deleteOne(query)
+            console.log(result);
+            res.json(result)
+        })
 
+        // GET Order By Specific Email ID (working codes just didn't use here may be nextTime)
+        // app.get('/myOrders', async (req, res) => {
+        //     const email = req.query.email;
+        //     const query = { userEmail: email }
+        //     const cursor = orderCollection.find(query);
+        //     console.log('cc', cursor)
+        //     const myOrder = await cursor.toArray();
+        //     console.log('myorder', myOrder)
+        //     res.json(myOrder);
+        // })
 
     }
     finally {
