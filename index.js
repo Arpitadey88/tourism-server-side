@@ -64,18 +64,18 @@ async function run() {
             res.json(result);
         });
 
-        app.post('/myOrder', async (req, res) => {
+        app.post('/logInService', async (req, res) => {
             const email = []
             const getEmail = req.body.email;
             email.push(getEmail)
             console.log(email);
-            const query = { userEmail: { $in: email } }
+            const query = { email: { $in: email } }
             const services = await orderCollection.find(query).toArray();
             res.json(services)
         })
 
         // Delete API for myOrder and manageOrder
-        app.delete('/myOrder/:id', async (req, res) => {
+        app.delete('/logInService/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
             const result = await orderCollection.deleteOne(query)
@@ -83,7 +83,7 @@ async function run() {
             res.json(result)
         })
 
-        // GET Order By Specific Email ID (working codes just didn't use here may be nextTime)
+        // GET Order By Specific Email ID (working codes)
         // app.get('/myOrders', async (req, res) => {
         //     const email = req.query.email;
         //     const query = { userEmail: email }
